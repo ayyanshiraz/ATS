@@ -10,6 +10,8 @@ jobs:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      # This line ensures that if Mac fails, Windows still finishes!
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
@@ -38,8 +40,9 @@ jobs:
 
     - name: Build with PyInstaller (macOS)
       if: runner.os == 'macOS'
+      # REMOVED: --target-architecture universal2 (This was causing the crash)
       run: |
-        pyinstaller --noconsole --onefile --clean --hidden-import="PIL._tkinter_finder" --target-architecture universal2 --name="ATS_Scanner_Mac" app.py
+        pyinstaller --noconsole --onefile --clean --hidden-import="PIL._tkinter_finder" --name="ATS_Scanner_Mac" app.py
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
