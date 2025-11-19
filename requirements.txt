@@ -1,0 +1,9 @@
+customtkinter 
+scikit-learn 
+pandas 
+pdfminer.six 
+docx2txt 
+packaging 
+pyinstaller
+Pillow
+requests
