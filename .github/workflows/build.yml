@@ -1,0 +1,48 @@
+name: Build ATS Scanner
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build with PyInstaller (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        pyinstaller --noconsole --onefile --clean --hidden-import="PIL._tkinter_finder" --name="ATS_Scanner_Windows" app.py
+
+    - name: Build with PyInstaller (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        pyinstaller --noconsole --onefile --clean --hidden-import="PIL._tkinter_finder" --name="ATS_Scanner_Linux" app.py
+
+    - name: Build with PyInstaller (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        pyinstaller --noconsole --onefile --clean --hidden-import="PIL._tkinter_finder" --target-architecture universal2 --name="ATS_Scanner_Mac" app.py
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ATS_Scanner_${{ runner.os }}
+        path: dist/
